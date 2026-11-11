@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algoritma Kaptanı: 6. Sınıf Bilişim Teknolojileri Ünite 1</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            purple: '#6C5CE7',
+                            yellow: '#FDCB6E',
+                            pink: '#FF7675',
+                            blue: '#74B9FF',
+                            green: '#00B894',
+                            dark: '#2D3436'
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #F8F9FA;
+            user-select: none;
+        }
+
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* 3D Flip Card Styles */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        /* Drag & Drop Visual Styles */
+        .dragging {
+            opacity: 0.5;
+            transform: scale(0.96);
+        }
+        .drag-over {
+            border-color: #6C5CE7 !important;
+            background-color: rgba(108, 92, 231, 0.08) !important;
+        }
+
+        /* Pulsing & Floating Animations */
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float { animation: float-gentle 3s ease-in-out infinite; }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(108, 92, 231, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(108, 92, 231, 0.7); }
+        }
+        .glow-effect { animation: pulse-glow 2s infinite; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #6C5CE7; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Top Gamification Navbar -->
+    <header class="bg-white shadow-md sticky top-0 z-50 px-4 py-3 border-b-4 border-brand-purple">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            
+            <!-- Logo & Brand -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="goToStep(1)">
+                <div class="bg-brand-purple text-white p-2.5 rounded-2xl shadow-lg transform hover:scale-105 transition">
+                    <i class="fa-solid fa-diagram-project text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-brand-purple tracking-wide">ALGORİTMA KAPTANI</h1>
+                    <p class="text-xs text-slate-500 font-semibold">6. Sınıf BİL-TEK • Ünite 1 Rehberli Modülü</p>
+                </div>
+            </div>
+
+            <!-- Gamification Status Bar -->
+            <div class="flex items-center space-x-4 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200 shadow-inner">
+                <!-- Total Points -->
+                <div class="flex items-center space-x-1.5" title="Kazanılan Puan (XP)">
+                    <i class="fa-solid fa-star text-amber-400 text-xl animate-bounce"></i>
+                    <span id="user-points" class="font-heading text-lg font-bold text-slate-700">0</span>
+                    <span class="text-xs text-slate-400 font-bold">XP</span>
+                </div>
+                <div class="h-6 w-px bg-slate-300"></div>
+                
+                <!-- Lesson Time Indicator -->
+                <div class="flex items-center space-x-1.5" title="Ders Süresi">
+                    <i class="fa-regular fa-clock text-brand-purple text-lg"></i>
+                    <span id="lesson-timer" class="font-heading text-sm font-bold text-slate-700">80 Dk Planı</span>
+                </div>
+                <div class="h-6 w-px bg-slate-300"></div>
+                
+                <!-- Badges -->
+                <div class="flex items-center space-x-1.5" title="Kazanılan Rozet Sayısı">
+                    <i class="fa-solid fa-award text-brand-pink text-xl"></i>
+                    <span id="user-badges-count" class="font-heading text-lg font-bold text-slate-700">0</span>
+                </div>
+                <div class="h-6 w-px bg-slate-300"></div>
+
+                <!-- Level Progress -->
+                <div class="flex flex-col min-w-[110px]">
+                    <div class="flex justify-between text-xs font-bold mb-0.5">
+                        <span class="text-brand-purple" id="level-title">Seviye 1</span>
+                        <span class="text-slate-400" id="level-percent">%0</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                        <div id="level-bar" class="bg-gradient-to-r from-brand-blue to-brand-purple h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleAnalyticsModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-purple-100 text-brand-purple hover:bg-purple-200 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-pie"></i> 80 Dk Ders & Analitik Paneli
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto w-full p-4 md:p-6 flex-grow space-y-6">
+
+        <!-- GAGNE STEP NAVIGATOR BAR -->
+        <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+            <div class="flex items-center space-x-2 min-w-max">
+                <button id="nav-btn-1" onclick="goToStep(1)" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-brand-purple text-white transition flex items-center gap-1">
+                    <span>1. Dikkat Çekme (0-10 Dk)</span>
+                </button>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+                <button id="nav-btn-2" onclick="goToStep(2)" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 transition flex items-center gap-1">
+                    <span>2. Hedef & Ön Bilgi (10-20 Dk)</span>
+                </button>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+                <button id="nav-btn-3" onclick="goToStep(3)" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 transition flex items-center gap-1">
+                    <span>3. İçerik Sunumu (20-35 Dk)</span>
+                </button>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+                <button id="nav-btn-4" onclick="goToStep(4)" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 transition flex items-center gap-1">
+                    <span>4. Algoritma Sıralama (35-45 Dk)</span>
+                </button>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+                <button id="nav-btn-5" onclick="goToStep(5)" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 transition flex items-center gap-1">
+                    <span>5. Akış Şeması (45-55 Dk)</span>
+                </button>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+                <button id="nav-btn-6" onclick="goToStep(6)" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 transition flex items-center gap-1">
+                    <span>6. Hata Ayıklama (55-65 Dk)</span>
+                </button>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+                <button id="nav-btn-7" onclick="goToStep(7)" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 transition flex items-center gap-1">
+                    <span>7. Değerlendirme (65-80 Dk)</span>
+                </button>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+                <button id="nav-btn-8" onclick="goToStep(8)" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 transition flex items-center gap-1">
+                    <span>8. 🏠 Ev Ödevleri & Pekiştirme</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- GAGNE ETKİNLİĞİ 1: DİKKAT ÇEKME (GAIN ATTENTION) - DERS SAATİ 1 (0-10. DK) -->
+        <!-- ========================================================================= -->
+        <section id="gagne-step-1" class="space-y-6">
+            <div class="bg-gradient-to-r from-brand-purple via-indigo-600 to-brand-blue rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10 max-w-3xl space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+                            <i class="fa-solid fa-bolt text-amber-300 mr-1"></i> Gagne 1. Etkinlik
+                        </span>
+                        <span class="bg-amber-400 text-slate-900 text-xs px-3 py-1 rounded-full font-bold">
+                            ⏱️ 1. Ders: 00 - 10. Dakika
+                        </span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Robot Kaptan Yolda Kaldı! 🤖💥</h2>
+                    <p class="text-indigo-100 text-sm md:text-base leading-relaxed">
+                        Uzay gemimizin yön bulma bilgisayarı bozuldu! Robot Kaptan şu an adımları karıştırıyor ve şaşkın halde. Onu hedefine ulaştırmak için bilgisayar gibi adım adım düşünmeyi öğrenmeye var mısın?
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="goToStep(2)" class="bg-brand-yellow hover:bg-amber-400 text-slate-900 font-bold px-6 py-3.5 rounded-2xl shadow-lg transform hover:-translate-y-1 transition duration-200 flex items-center gap-2">
+                            <i class="fa-solid fa-play"></i> Göreve Başla ve Kaptanı Kurtar! (+10 XP)
+                        </button>
+                    </div>
+                </div>
+                <div class="absolute right-4 bottom-2 opacity-25 text-9xl transform rotate-12 animate-float hidden md:block">
+                    🤖
+                </div>
+            </div>
+
+            <!-- Interaktif Isınma Soruları (Genişletilmiş) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
+                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-circle-question text-brand-purple"></i> Senaryo A: Sabah Okul Rutini
+                    </h3>
+                    <p class="text-sm text-slate-600">
+                        Sabah evden çıkıp okula varana kadar yaptığın davranışları düşün. Bunlar rastgele mi gerçekleşiyor yoksa belirli bir sırayla mı?
+                    </p>
+                    <div class="space-y-2">
+                        <button onclick="answerWarmup(false, this)" class="w-full p-4 rounded-2xl border-2 border-slate-200 hover:border-rose-400 hover:bg-rose-50 text-left transition flex items-center space-x-3">
+                            <span class="text-2xl">🎲</span>
+                            <div>
+                                <div class="font-bold text-sm text-slate-800">Rastgele yaparım.</div>
+                                <div class="text-xs text-slate-400">Önce okula gider sonra uyanırım!</div>
+                            </div>
+                        </button>
+                        <button onclick="answerWarmup(true, this)" class="w-full p-4 rounded-2xl border-2 border-slate-200 hover:border-brand-green hover:bg-green-50 text-left transition flex items-center space-x-3">
+                            <span class="text-2xl">📋</span>
+                            <div>
+                                <div class="font-bold text-sm text-slate-800">Sıralı ve mantıklı yaparım.</div>
+                                <div class="text-xs text-slate-400">Uyanırım, giyinirim, kahvaltı yaparım ve evden çıkarım.</div>
+                            </div>
+                        </button>
+                    </div>
+                    <div id="warmup-feedback" class="hidden p-4 rounded-2xl text-sm font-bold"></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
+                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-brand-blue"></i> Senaryo B: Robota Ayakkabı Bağlatmak
+                    </h3>
+                    <p class="text-sm text-slate-600">
+                        Bir robota ayakkabı bağlatmak isteseniz hangisi "Bilgisayarca Adım Adım" ifadedir?
+                    </p>
+                    <div class="space-y-2">
+                        <button onclick="answerWarmupRobot(false, this)" class="w-full p-4 rounded-2xl border-2 border-slate-200 hover:border-rose-400 hover:bg-rose-50 text-left transition flex items-center space-x-3">
+                            <span class="text-2xl">🗣️</span>
+                            <div>
+                                <div class="font-bold text-sm text-slate-800">"Hadi git ayakkabını bağla!" demek.</div>
+                                <div class="text-xs text-slate-400">Robotlar genel komutları doğrudan anlayamaz.</div>
+                            </div>
+                        </button>
+                        <button onclick="answerWarmupRobot(true, this)" class="w-full p-4 rounded-2xl border-2 border-slate-200 hover:border-brand-green hover:bg-green-50 text-left transition flex items-center space-x-3">
+                            <span class="text-2xl">👟</span>
+                            <div>
+                                <div class="font-bold text-sm text-slate-800">Bağcığı al, çapraz yap, içinden geçir, çek.</div>
+                                <div class="text-xs text-slate-400">Adımları eksiksiz ve mantıklı sırayla tanımlamak.</div>
+                            </div>
+                        </button>
+                    </div>
+                    <div id="warmup-robot-feedback" class="hidden p-4 rounded-2xl text-sm font-bold"></div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================================================= -->
+        <!-- GAGNE ETKİNLİĞİ 2 & 3: HEDEF VE ÖN ÖĞRENME (10-20. DK) -->
+        <!-- ========================================================================= -->
+        <section id="gagne-step-2" class="hidden space-y-6">
+            <div class="bg-purple-50 border-l-4 border-brand-purple p-5 rounded-2xl flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <span class="text-xs text-brand-purple font-bold uppercase tracking-wider">Gagne Etkinliği 2 & 3</span>
+                    <h3 class="font-bold text-slate-800 text-xl mt-1">Ders Hedefleri ve Ön Öğrenmeleri Hatırlatma</h3>
+                </div>
+                <span class="bg-purple-200 text-brand-purple text-xs px-3 py-1 rounded-full font-bold">⏱️ 1. Ders: 10 - 20. Dakika</span>
+            </div>
+
+            <!-- Objectives Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="bg-purple-100 text-brand-purple w-10 h-10 rounded-xl flex items-center justify-center font-bold">1</div>
+                    <h4 class="font-bold text-slate-800">Algoritma Tasarımı</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">Bir günlük hayat probleminin çözüm adımlarını mantıksal olarak ifade etme.</p>
+                </div>
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="bg-blue-100 text-brand-blue w-10 h-10 rounded-xl flex items-center justify-center font-bold">2</div>
+                    <h4 class="font-bold text-slate-800">Akış Şemaları</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">Oval, Dikdörtgen, Paralelkenar ve Eşkenar Dörtgen sembollerini doğru yerde kullanma.</p>
+                </div>
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="bg-pink-100 text-brand-pink w-10 h-10 rounded-xl flex items-center justify-center font-bold">3</div>
+                    <h4 class="font-bold text-slate-800">Hata Ayıklama (Debug)</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">Mantık hatası (Bug) barındıran algoritmaları analiz edip hataları düzeltme.</p>
+                </div>
+            </div>
+
+            <!-- Interactive Prior Knowledge Check -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
+                <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-brain text-amber-500"></i> Ön Öğrenme Kontrolü: 5. Sınıftan Ne Hatırlıyoruz?
+                </h4>
+                <p class="text-xs text-slate-600">Aşağıdaki durumlardan hangisi bilgisayar biliminde bir <strong>"Problem"</strong> olarak adlandırılır?</p>
+                <div class="space-y-2">
+                    <button onclick="answerPrior(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-sm font-semibold transition">
+                        A) Çözülmesi imkansız olan, bilgisayarı bozan durumlar.
+                    </button>
+                    <button onclick="answerPrior(true, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-sm font-semibold transition">
+                        B) Amacımıza ulaşmamızı engelleyen ve mantıklı bir çözüm yolu aranan tüm durumlar.
+                    </button>
+                    <button onclick="answerPrior(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-sm font-semibold transition">
+                        C) Sadece matematik dersinde karşımıza çıkan zor denklemler.
+                    </button>
+                </div>
+                <div id="prior-feedback" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+            </div>
+
+            <div class="flex justify-between">
+                <button onclick="goToStep(1)" class="bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-bold hover:bg-slate-300 transition">Geri</button>
+                <button onclick="goToStep(3)" class="bg-brand-purple text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition flex items-center gap-2">
+                    İçerik Sunumu ve Kavram Kartlarına Geç <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ========================================================================= -->
+        <!-- GAGNE ETKİNLİĞİ 4: İÇERİĞİ SUNMA (20-35. DK) -->
+        <!-- ========================================================================= -->
+        <section id="gagne-step-3" class="hidden space-y-6">
+            <div class="bg-blue-50 border-l-4 border-brand-blue p-5 rounded-2xl flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <span class="text-xs text-brand-blue font-bold uppercase tracking-wider">Gagne Etkinliği 4</span>
+                    <h3 class="font-bold text-slate-800 text-xl mt-1">İnteraktif Kavram Kartları ve Canlı Anlatım 🔄</h3>
+                </div>
+                <span class="bg-blue-200 text-brand-blue text-xs px-3 py-1 rounded-full font-bold">⏱️ 1. Ders: 20 - 35. Dakika</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="flip-card h-64 cursor-pointer perspective-1000" onclick="flipCard(this, 'card1')">
+                    <div class="flip-card-inner relative w-full h-full duration-500 transform-style-3d shadow-md rounded-3xl">
+                        <div class="absolute w-full h-full bg-white border-2 border-purple-200 rounded-3xl p-6 flex flex-col justify-between items-center text-center backface-hidden">
+                            <div class="bg-purple-100 text-brand-purple p-4 rounded-full mt-2">
+                                <i class="fa-solid fa-list-ol text-4xl"></i>
+                            </div>
+                            <h4 class="text-xl font-bold text-slate-800">Algoritma Nedir?</h4>
+                            <span class="text-xs font-bold text-brand-purple bg-purple-50 px-3 py-1 rounded-full">Tıkla ve Çevir 🔄</span>
+                        </div>
+                        <div class="absolute w-full h-full bg-brand-purple text-white rounded-3xl p-6 flex flex-col justify-center items-center text-center rotate-y-180 backface-hidden space-y-2">
+                            <h4 class="text-lg font-bold">Sıralı Adımlar! 💡</h4>
+                            <p class="text-xs leading-relaxed">
+                                Bir problemi çözmek için takip edilen <strong>başlangıcı ve bitişi net</strong> sıralı adımlar listesidir.
+                            </p>
+                            <span class="bg-white/20 text-xs px-2.5 py-1 rounded-md font-mono">Örn: Yemek tarifi, Navigasyon</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="flip-card h-64 cursor-pointer perspective-1000" onclick="flipCard(this, 'card2')">
+                    <div class="flip-card-inner relative w-full h-full duration-500 transform-style-3d shadow-md rounded-3xl">
+                        <div class="absolute w-full h-full bg-white border-2 border-blue-200 rounded-3xl p-6 flex flex-col justify-between items-center text-center backface-hidden">
+                            <div class="bg-blue-100 text-brand-blue p-4 rounded-full mt-2">
+                                <i class="fa-solid fa-shapes text-4xl"></i>
+                            </div>
+                            <h4 class="text-xl font-bold text-slate-800">Akış Şeması Nedir?</h4>
+                            <span class="text-xs font-bold text-brand-blue bg-blue-50 px-3 py-1 rounded-full">Tıkla ve Çevir 🔄</span>
+                        </div>
+                        <div class="absolute w-full h-full bg-brand-blue text-white rounded-3xl p-6 flex flex-col justify-center items-center text-center rotate-y-180 backface-hidden space-y-2">
+                            <h4 class="text-lg font-bold">Görsel Çizim! 🗺️</h4>
+                            <p class="text-xs leading-relaxed">
+                                Algoritmanın metin yerine özel <strong>geometrik şekillerle</strong> haritalandırılmış görsel halidir.
+                            </p>
+                            <span class="bg-white/20 text-xs px-2.5 py-1 rounded-md font-mono">Evrensel Standart Şekiller</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="flip-card h-64 cursor-pointer perspective-1000" onclick="flipCard(this, 'card3')">
+                    <div class="flip-card-inner relative w-full h-full duration-500 transform-style-3d shadow-md rounded-3xl">
+                        <div class="absolute w-full h-full bg-white border-2 border-pink-200 rounded-3xl p-6 flex flex-col justify-between items-center text-center backface-hidden">
+                            <div class="bg-pink-100 text-brand-pink p-4 rounded-full mt-2">
+                                <i class="fa-solid fa-bug text-4xl"></i>
+                            </div>
+                            <h4 class="text-xl font-bold text-slate-800">Mantık Hatası (Bug)</h4>
+                            <span class="text-xs font-bold text-brand-pink bg-pink-50 px-3 py-1 rounded-full">Tıkla ve Çevir 🔄</span>
+                        </div>
+                        <div class="absolute w-full h-full bg-brand-pink text-white rounded-3xl p-6 flex flex-col justify-center items-center text-center rotate-y-180 backface-hidden space-y-2">
+                            <h4 class="text-lg font-bold">Hata Ayıklama! 🛠️</h4>
+                            <p class="text-xs leading-relaxed">
+                                Sıralamadaki mantık hatalarına <strong>Bug</strong>, bu hataları bulup düzeltmeye <strong>Debugging</strong> denir.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canlı Algoritma Çalıştırma Simülatörü -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
+                <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-play text-brand-green"></i> Öğretmen Anlatımı Entegrasyonu: Canlı Algoritma Adım Simülatörü
+                </h4>
+                <p class="text-xs text-slate-600">"İki Sayıyı Toplama" algoritmasının bilgisayarda adım adım nasıl çalıştığını görmek için butonlara tıkla:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div id="sim-step-1" class="p-4 rounded-2xl border-2 border-slate-200 text-center space-y-1 transition">
+                        <span class="text-xs font-bold text-slate-400">1. ADIM</span>
+                        <h5 class="font-bold text-sm">Başla</h5>
+                        <div class="text-[10px] text-slate-500">Program hafızası hazır.</div>
+                    </div>
+                    <div id="sim-step-2" class="p-4 rounded-2xl border-2 border-slate-200 text-center space-y-1 transition">
+                        <span class="text-xs font-bold text-slate-400">2. ADIM</span>
+                        <h5 class="font-bold text-sm">Sayıları Al</h5>
+                        <div class="text-[10px] text-slate-500">A = 5, B = 8</div>
+                    </div>
+                    <div id="sim-step-3" class="p-4 rounded-2xl border-2 border-slate-200 text-center space-y-1 transition">
+                        <span class="text-xs font-bold text-slate-400">3. ADIM</span>
+                        <h5 class="font-bold text-sm">Hesapla (Topla)</h5>
+                        <div class="text-[10px] text-slate-500">Toplam = 5 + 8</div>
+                    </div>
+                    <div id="sim-step-4" class="p-4 rounded-2xl border-2 border-slate-200 text-center space-y-1 transition">
+                        <span class="text-xs font-bold text-slate-400">4. ADIM</span>
+                        <h5 class="font-bold text-sm">Ekrana Yaz & Bitir</h5>
+                        <div class="text-[10px] text-slate-500">Sonuç: 13</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-3">
+                    <button onclick="runStepSimulation()" class="bg-brand-blue text-white font-bold px-5 py-2.5 rounded-xl hover:bg-blue-600 transition flex items-center gap-2 text-xs">
+                        <i class="fa-solid fa-forward-step"></i> Adım Adım Çalıştır
+                    </button>
+                    <button onclick="resetStepSimulation()" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl hover:bg-slate-300 transition text-xs">
+                        Sıfırla
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button onclick="goToStep(2)" class="bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-bold hover:bg-slate-300 transition">Geri</button>
+                <button onclick="goToStep(4)" class="bg-brand-purple text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition flex items-center gap-2">
+                    2. Ders: Algoritma Sıralama Etkinliği <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ========================================================================= -->
+        <!-- GAGNE ETKİNLİĞİ 5: REHBERLİ UYGULAMA (35-45. DK - DERS SAATİ 2) -->
+        <!-- ========================================================================= -->
+        <section id="gagne-step-4" class="hidden space-y-6">
+            <div class="bg-amber-50 border-l-4 border-amber-400 p-5 rounded-2xl flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <span class="text-xs text-amber-700 font-bold uppercase tracking-wider">Gagne Etkinliği 5 (Öğrenme Rehberliği)</span>
+                    <h3 class="font-bold text-slate-800 text-xl mt-1">Sürükle-Bırak Algoritma Görevleri 🧩</h3>
+                </div>
+                <span class="bg-amber-200 text-amber-800 text-xs px-3 py-1 rounded-full font-bold">⏱️ 2. Ders: 35 - 45. Dakika</span>
+            </div>
+
+            <!-- GÖREV 1 -->
+            <div class="max-w-2xl mx-auto bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h4 class="font-bold text-slate-700">Görev 1: Lezzetli Çay Demleme Algoritması</h4>
+                    <span class="text-xs font-bold text-brand-purple bg-purple-100 px-3 py-1 rounded-full">Sürükle ve Bırak</span>
+                </div>
+
+                <ul id="algo-drag-list" class="space-y-3">
+                    <li draggable="true" data-id="3" class="drag-item bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Su kaynayınca demliğe çay ve sıcak su ekle.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="1" class="drag-item bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> BAŞLA
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="5" class="drag-item bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Çayı bardağa doldur ve servis et.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="2" class="drag-item bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Çaydanlığa su koy ve ocağa al.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="4" class="drag-item bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Kısık ateşte 10 dakika demlenmesini bekle.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="6" class="drag-item bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> BİTİR
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                </ul>
+
+                <button onclick="checkAlgoDragOrder()" class="w-full bg-brand-green text-white font-bold py-3.5 rounded-2xl hover:bg-emerald-600 transition shadow-md flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-double"></i> 1. Görevi Kontrol Et
+                </button>
+
+                <div id="algo-drag-feedback" class="hidden p-4 rounded-2xl text-sm font-bold flex items-center gap-3"></div>
+            </div>
+
+            <!-- EK GÖREV 2: OKULA HAZIRLANMA ALGORİTMASI -->
+            <div class="max-w-2xl mx-auto bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h4 class="font-bold text-slate-700">Görev 2: Sabah Okula Hazırlanma Algoritması</h4>
+                    <span class="text-xs font-bold text-brand-blue bg-blue-100 px-3 py-1 rounded-full">Yeni Eklenen Görev 🔥</span>
+                </div>
+
+                <ul id="algo-drag-list-2" class="space-y-3">
+                    <li draggable="true" data-id="2" class="drag-item-2 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-blue transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Okul kıyafetlerini giy ve elini/yüzünü yıka.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="1" class="drag-item-2 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-blue transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> BAŞLA (Çalar saat çalar ve uyanırsın)
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="4" class="drag-item-2 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-blue transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Çantanı kontrol edip sırtına al ve evden çık.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="3" class="drag-item-2 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-blue transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Sağlıklı bir kahvaltı yap ve dişlerini fırçala.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="5" class="drag-item-2 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-brand-blue transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> BİTİR (Okula zamanında varış!)
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                </ul>
+
+                <button onclick="checkAlgoDragOrder2()" class="w-full bg-brand-blue text-white font-bold py-3.5 rounded-2xl hover:bg-blue-600 transition shadow-md flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-double"></i> 2. Görevi Kontrol Et (+25 XP)
+                </button>
+
+                <div id="algo-drag-feedback-2" class="hidden p-4 rounded-2xl text-sm font-bold flex items-center gap-3"></div>
+            </div>
+
+            <div class="flex justify-between">
+                <button onclick="goToStep(3)" class="bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-bold hover:bg-slate-300 transition">Geri</button>
+                <button onclick="goToStep(5)" class="bg-brand-purple text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition flex items-center gap-2">
+                    Akış Şeması Sembollerine Geç <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ========================================================================= -->
+        <!-- GAGNE ETKİNLİĞİ 6: PERFORMANSI ORTAYA ÇIKARMA (45-55. DK) -->
+        <!-- ========================================================================= -->
+        <section id="gagne-step-5" class="hidden space-y-6">
+            <div class="bg-green-50 border-l-4 border-brand-green p-5 rounded-2xl flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <span class="text-xs text-brand-green font-bold uppercase tracking-wider">Gagne Etkinliği 6</span>
+                    <h3 class="font-bold text-slate-800 text-xl mt-1">Akış Şeması Sembol Eşleştirme Simülasyonu 📐</h3>
+                </div>
+                <span class="bg-green-200 text-green-800 text-xs px-3 py-1 rounded-full font-bold">⏱️ 2. Ders: 45 - 55. Dakika</span>
+            </div>
+
+            <!-- EŞLEŞTİRME UYGULAMASI 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Source Draggables -->
+                <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-700 border-b pb-2">1. Görev: Sembol Tanımları (Sürükle)</h4>
+                    <div id="shape-sources" class="space-y-3">
+                        <div draggable="true" data-shape="decision" class="shape-drag bg-purple-100 text-brand-purple border-2 border-purple-300 p-3.5 rounded-xl font-bold text-sm cursor-grab active:cursor-grabbing hover:bg-purple-200 transition">
+                            ❓ Karar Verme / Şart Kontrolü (Eğer / Şart)
+                        </div>
+                        <div draggable="true" data-shape="start" class="shape-drag bg-green-100 text-brand-green border-2 border-green-300 p-3.5 rounded-xl font-bold text-sm cursor-grab active:cursor-grabbing hover:bg-green-200 transition">
+                            🚀 Algoritmayı Başlatma ve Bitirme
+                        </div>
+                        <div draggable="true" data-shape="process" class="shape-drag bg-blue-100 text-brand-blue border-2 border-blue-300 p-3.5 rounded-xl font-bold text-sm cursor-grab active:cursor-grabbing hover:bg-blue-200 transition">
+                            ⚙️ İşlem / Hesaplama Yapma
+                        </div>
+                        <div draggable="true" data-shape="input" class="shape-drag bg-amber-100 text-amber-700 border-2 border-amber-300 p-3.5 rounded-xl font-bold text-sm cursor-grab active:cursor-grabbing hover:bg-amber-200 transition">
+                            📥 Dışarıdan Veri/Bilgi Girişi Yapma
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Drop Target Zones -->
+                <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                    <h4 class="font-bold text-slate-700 border-b pb-2">Geometrik Şekiller (Hedef Bölge)</h4>
+                    <div class="space-y-4">
+                        <!-- Oval -->
+                        <div class="drop-zone border-2 border-dashed border-slate-300 p-3.5 rounded-2xl flex items-center justify-between transition" data-target="start">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-16 h-8 bg-slate-200 border-2 border-slate-400 rounded-full flex items-center justify-center text-xs font-bold text-slate-700">Oval</div>
+                                <span class="text-xs text-slate-400 font-semibold">Görevi buraya sürükle</span>
+                            </div>
+                        </div>
+
+                        <!-- Rectangle -->
+                        <div class="drop-zone border-2 border-dashed border-slate-300 p-3.5 rounded-2xl flex items-center justify-between transition" data-target="process">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-16 h-8 bg-slate-200 border-2 border-slate-400 rounded-md flex items-center justify-center text-xs font-bold text-slate-700">Dikdörtgen</div>
+                                <span class="text-xs text-slate-400 font-semibold">Görevi buraya sürükle</span>
+                            </div>
+                        </div>
+
+                        <!-- Diamond -->
+                        <div class="drop-zone border-2 border-dashed border-slate-300 p-3.5 rounded-2xl flex items-center justify-between transition" data-target="decision">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-slate-200 border-2 border-slate-400 rotate-45 flex items-center justify-center text-[10px] font-bold text-slate-700"><span class="-rotate-45">Eşkenar</span></div>
+                                <span class="text-xs text-slate-400 font-semibold">Görevi buraya sürükle</span>
+                            </div>
+                        </div>
+
+                        <!-- Parallelogram -->
+                        <div class="drop-zone border-2 border-dashed border-slate-300 p-3.5 rounded-2xl flex items-center justify-between transition" data-target="input">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-16 h-8 bg-slate-200 border-2 border-slate-400 -skew-x-12 flex items-center justify-center text-xs font-bold text-slate-700">Paralelkenar</div>
+                                <span class="text-xs text-slate-400 font-semibold">Görevi buraya sürükle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EK GÖREV 2: CANLI AKIŞ ŞEMASI SENARYOSU -->
+            <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h4 class="font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-next text-brand-green"></i> 2. Görev: "Hava Sıcaklığı Kontrolü" Akış Şemasını Tamamla
+                    </h4>
+                    <span class="text-xs font-bold text-brand-green bg-green-100 px-3 py-1 rounded-full">Yeni Eklendi 🔥</span>
+                </div>
+                <p class="text-xs text-slate-600">Aşağıda verilen akış şeması adımlarını ilgili şekil kutularına tıkla ve doğru sembol eşleşmesini seç:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <!-- Step 1 Oval -->
+                    <div class="p-4 bg-slate-50 rounded-2xl border-2 border-slate-200 space-y-2">
+                        <div class="w-24 h-10 bg-green-200 border-2 border-green-500 rounded-full mx-auto flex items-center justify-center text-xs font-bold text-green-900">
+                            Oval Şekil
+                        </div>
+                        <p class="text-xs font-semibold text-slate-700">Bu şeklin içine hangisi yazılmalıdır?</p>
+                        <select onchange="checkFlowChoice(1, this.value)" class="w-full text-xs p-2 rounded-xl border border-slate-300 font-bold text-slate-700 bg-white">
+                            <option value="">Seçiniz...</option>
+                            <option value="wrong1">Sıcaklık = 35 Derece</option>
+                            <option value="correct">BAŞLA</option>
+                            <option value="wrong2">Klimayı Aç</option>
+                        </select>
+                        <span id="flow-fb-1" class="text-[10px] font-bold block"></span>
+                    </div>
+
+                    <!-- Step 2 Diamond -->
+                    <div class="p-4 bg-slate-50 rounded-2xl border-2 border-slate-200 space-y-2">
+                        <div class="w-12 h-12 bg-purple-200 border-2 border-purple-500 rotate-45 mx-auto flex items-center justify-center text-[9px] font-bold text-purple-900">
+                            <span class="-rotate-45">Karar</span>
+                        </div>
+                        <p class="text-xs font-semibold text-slate-700">Eşkenar dörtgen içine hangisi gelmelidir?</p>
+                        <select onchange="checkFlowChoice(2, this.value)" class="w-full text-xs p-2 rounded-xl border border-slate-300 font-bold text-slate-700 bg-white">
+                            <option value="">Seçiniz...</option>
+                            <option value="correct">Sıcaklık > 30°C mi?</option>
+                            <option value="wrong1">Sıcaklığı oku</option>
+                            <option value="wrong2">BİTİR</option>
+                        </select>
+                        <span id="flow-fb-2" class="text-[10px] font-bold block"></span>
+                    </div>
+
+                    <!-- Step 3 Rectangle -->
+                    <div class="p-4 bg-slate-50 rounded-2xl border-2 border-slate-200 space-y-2">
+                        <div class="w-24 h-10 bg-blue-200 border-2 border-blue-500 rounded-md mx-auto flex items-center justify-center text-xs font-bold text-blue-900">
+                            Dikdörtgen
+                        </div>
+                        <p class="text-xs font-semibold text-slate-700">Dikdörtgen (İşlem) içine hangisi yazılır?</p>
+                        <select onchange="checkFlowChoice(3, this.value)" class="w-full text-xs p-2 rounded-xl border border-slate-300 font-bold text-slate-700 bg-white">
+                            <option value="">Seçiniz...</option>
+                            <option value="wrong1">Eğer Sıcaklık Yüksekse</option>
+                            <option value="correct">Klimayı Çalıştır (İşlem)</option>
+                            <option value="wrong2">Hava Sıcak mı?</option>
+                        </select>
+                        <span id="flow-fb-3" class="text-[10px] font-bold block"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button onclick="goToStep(4)" class="bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-bold hover:bg-slate-300 transition">Geri</button>
+                <button onclick="goToStep(6)" class="bg-brand-purple text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition flex items-center gap-2">
+                    Hata Ayıklama (Debug) Adımına Geç <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ========================================================================= -->
+        <!-- GAGNE ETKİNLİĞİ 6 (DEVAM): HATA AYIKLAMA (55-65. DK) -->
+        <!-- ========================================================================= -->
+        <section id="gagne-step-6" class="hidden space-y-6">
+            <div class="bg-pink-50 border-l-4 border-brand-pink p-5 rounded-2xl flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <span class="text-xs text-brand-pink font-bold uppercase tracking-wider">Gagne Etkinliği 6 (İleri Performans)</span>
+                    <h3 class="font-bold text-slate-800 text-xl mt-1">Dedektif Görevi: Mantık Hatasını (Bug) Bul! 🐞</h3>
+                </div>
+                <span class="bg-pink-200 text-brand-pink text-xs px-3 py-1 rounded-full font-bold">⏱️ 2. Ders: 55 - 65. Dakika</span>
+            </div>
+
+            <!-- Multi Scenario Debugging - SENARYO 1 -->
+            <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h4 class="font-bold text-slate-700">Senaryo 1: "Yağmurlu Günde Evden Çıkış Algoritması"</h4>
+                    <span class="text-xs font-semibold text-slate-400">Hatalı Adıma Tıkla</span>
+                </div>
+
+                <div class="space-y-2">
+                    <button onclick="checkBugChoice(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">1</span>
+                        <span>BAŞLA</span>
+                    </button>
+                    <button onclick="checkBugChoice(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">2</span>
+                        <span>Pencereden dışarı bak, hava yağmurlu mu kontrol et.</span>
+                    </button>
+                    <button onclick="checkBugChoice(true, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-rose-50 hover:border-rose-300 text-xs font-semibold flex items-center gap-3 group">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold group-hover:bg-rose-400 group-hover:text-white">3</span>
+                        <span>Yağmur yağıyorsa Güneş Gözlüğü ve Şort giy! ❌ (Hatalı Adım!)</span>
+                    </button>
+                    <button onclick="checkBugChoice(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">4</span>
+                        <span>Şemsiyeni yanına al ve kapıyı açıp çık.</span>
+                    </button>
+                    <button onclick="checkBugChoice(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">5</span>
+                        <span>BİTİR</span>
+                    </button>
+                </div>
+
+                <div id="bug-feedback" class="hidden p-4 rounded-2xl text-xs font-bold"></div>
+            </div>
+
+            <!-- EK SENARYO 2: TRAFİK IŞIKLARI DEBUGGING -->
+            <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h4 class="font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-traffic-light text-rose-500"></i> Senaryo 2: "Akıllı Trafik Işığı Robotu"
+                    </h4>
+                    <span class="text-xs font-bold text-pink-600 bg-pink-100 px-3 py-1 rounded-full">Yeni Eklenen Senaryo 🔥</span>
+                </div>
+
+                <div class="space-y-2">
+                    <button onclick="checkBugChoice2(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">1</span>
+                        <span>BAŞLA</span>
+                    </button>
+                    <button onclick="checkBugChoice2(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">2</span>
+                        <span>Sensörle gelen aracı algıla.</span>
+                    </button>
+                    <button onclick="checkBugChoice2(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">3</span>
+                        <span>Trafik Işığı kırmızı yanıyorsa bekle.</span>
+                    </button>
+                    <button onclick="checkBugChoice2(true, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-rose-50 hover:border-rose-300 text-xs font-semibold flex items-center gap-3 group">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold group-hover:bg-rose-400 group-hover:text-white">4</span>
+                        <span>Trafik Işığı kırmızı yanıyorsa gaza basıp hızlıca geç! ❌ (Mantık Hatası!)</span>
+                    </button>
+                    <button onclick="checkBugChoice2(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">5</span>
+                        <span>Işık Yeşile dönünce güvenle ilerle ve BİTİR.</span>
+                    </button>
+                </div>
+
+                <div id="bug-feedback-2" class="hidden p-4 rounded-2xl text-xs font-bold"></div>
+            </div>
+
+            <div class="flex justify-between">
+                <button onclick="goToStep(5)" class="bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-bold hover:bg-slate-300 transition">Geri</button>
+                <button onclick="goToStep(7)" class="bg-brand-purple text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition flex items-center gap-2">
+                    Son Değerlendirme Testine Geç <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ========================================================================= -->
+        <!-- GAGNE ETKİNLİĞİ 7, 8 & 9: DÖNÜT, DEĞERLENDİRME VE KALICILIK (65-80. DK) -->
+        <!-- ========================================================================= -->
+        <section id="gagne-step-7" class="hidden space-y-6">
+            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-5 rounded-2xl flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <span class="text-xs text-indigo-700 font-bold uppercase tracking-wider">Gagne Etkinliği 7, 8 & 9</span>
+                    <h3 class="font-bold text-slate-800 text-xl mt-1">Anlık Dönütlü 80 Dk Sonu Değerlendirme Testi 📝</h3>
+                </div>
+                <span class="bg-indigo-200 text-indigo-800 text-xs px-3 py-1 rounded-full font-bold">⏱️ 2. Ders: 65 - 80. Dakika</span>
+            </div>
+
+            <div id="quiz-container" class="max-w-2xl mx-auto space-y-6">
+                <!-- Dynamically Populated Quiz -->
+            </div>
+
+            <div class="flex justify-between items-center pt-4">
+                <button onclick="goToStep(6)" class="bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-bold hover:bg-slate-300 transition">Geri</button>
+                <button id="finish-unit-btn" onclick="finishUnit1()" class="hidden bg-brand-green text-white px-8 py-3.5 rounded-2xl font-bold hover:bg-emerald-600 transition shadow-lg animate-bounce">
+                    80 Dk Dersini Tamamla ve Rozeti Kap! 🏆
+                </button>
+                <button onclick="goToStep(8)" class="bg-brand-purple text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition flex items-center gap-2">
+                    Ev Ödevleri Sekmesine Geç <i class="fa-solid fa-house-laptop"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ========================================================================= -->
+        <!-- GAGNE ETKİNLİĞİ 8: EV ÖDEVLERİ & KALICILIĞI SAĞLAMA (TRANSFER & RETENTION) -->
+        <!-- ========================================================================= -->
+        <section id="gagne-step-8" class="hidden space-y-6">
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-5 rounded-2xl flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <span class="text-xs text-amber-700 font-bold uppercase tracking-wider">Gagne 9. Etkinlik (Kalıcılığı ve Transferi Sağlama)</span>
+                    <h3 class="font-bold text-slate-800 text-xl mt-1">🏠 Ev Ödevleri ve Bireysel Pekiştirme Görevleri</h3>
+                </div>
+                <span class="bg-amber-200 text-amber-900 text-xs px-3 py-1 rounded-full font-bold">Ders Sonrası / Ev Çalışması</span>
+            </div>
+
+            <!-- Homework Sub-Tab Navigation -->
+            <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+                <button id="hw-tab-btn-1" onclick="switchHwTab(1)" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-purple text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-check"></i> Ödev 1: Algoritma Sıralama
+                </button>
+                <button id="hw-tab-btn-2" onclick="switchHwTab(2)" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-diagram-project"></i> Ödev 2: Akış Şeması
+                </button>
+                <button id="hw-tab-btn-3" onclick="switchHwTab(3)" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-bug"></i> Ödev 3: Hata Ayıklama
+                </button>
+                <button id="hw-tab-btn-4" onclick="switchHwTab(4)" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-lightbulb"></i> Ödev 4: Senaryo Tasarımı
+                </button>
+            </div>
+
+            <!-- ÖDEV 1: ALGORİTMA SIRALAMA ÖDEVİ -->
+            <div id="hw-content-1" class="bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-base">Ödev 1: "ATM'den Para Çekme Algoritması"</h4>
+                        <p class="text-xs text-slate-500">Adımları doğru sıraya koyarak ATM mantık algoritmasını tamamla.</p>
+                    </div>
+                    <span class="text-xs font-bold text-brand-purple bg-purple-100 px-3 py-1 rounded-full">+30 XP Ödüllü</span>
+                </div>
+
+                <ul id="hw-drag-list-1" class="space-y-3 max-w-2xl mx-auto">
+                    <li draggable="true" data-id="2" class="hw-drag-item-1 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Kartı ATM'ye tak ve 4 haneli şifreni gir.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="1" class="hw-drag-item-1 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> BAŞLA
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="4" class="hw-drag-item-1 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Parayı hazneden al ve kartını unutmadan geri al.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="3" class="hw-drag-item-1 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> Çekmek istediğin tutarı ekrana yaz.
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                    <li draggable="true" data-id="5" class="hw-drag-item-1 bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between cursor-grab hover:border-brand-purple transition">
+                        <span class="flex items-center gap-3 font-semibold text-sm text-slate-700">
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i> BİTİR
+                        </span>
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-md font-mono">Adım ?</span>
+                    </li>
+                </ul>
+
+                <div class="max-w-2xl mx-auto pt-2">
+                    <button onclick="checkHwDrag1()" class="w-full bg-brand-purple text-white font-bold py-3.5 rounded-2xl hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check-double"></i> Ödev 1'i Gönder ve Kontrol Et
+                    </button>
+                    <div id="hw-fb-1" class="hidden mt-3 p-4 rounded-2xl text-sm font-bold"></div>
+                </div>
+            </div>
+
+            <!-- ÖDEV 2: AKIŞ ŞEMASI ÖDEVİ -->
+            <div id="hw-content-2" class="hidden bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-base">Ödev 2: "Sınav Notu Geçti/Kaldı" Akış Şeması Sembol Bulmacası</h4>
+                        <p class="text-xs text-slate-500">Her adım için kullanılması gereken doğru geometrik sembolü seç.</p>
+                    </div>
+                    <span class="text-xs font-bold text-brand-blue bg-blue-100 px-3 py-1 rounded-full">+30 XP Ödüllü</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center max-w-4xl mx-auto">
+                    <div class="p-4 bg-slate-50 rounded-2xl border-2 border-slate-200 space-y-3">
+                        <span class="text-xs font-bold text-slate-400">GÖREV A</span>
+                        <h5 class="font-bold text-sm text-slate-800">"Öğrencinin Sınav Notunu Oku"</h5>
+                        <p class="text-xs text-slate-500">Kullanıcıdan veri girişi alınıyor.</p>
+                        <select id="hw-q-shape-1" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-white">
+                            <option value="">Hangi Şekil Kullanılır?</option>
+                            <option value="oval">Oval (Elips)</option>
+                            <option value="parallelogram">Paralelkenar (Veri Girişi)</option>
+                            <option value="rectangle">Dikdörtgen (İşlem)</option>
+                            <option value="diamond">Eşkenar Dörtgen (Karar)</option>
+                        </select>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-2xl border-2 border-slate-200 space-y-3">
+                        <span class="text-xs font-bold text-slate-400">GÖREV B</span>
+                        <h5 class="font-bold text-sm text-slate-800">"Sınav Notu >= 50 mi?"</h5>
+                        <p class="text-xs text-slate-500">Şart ve Karar kontrolü yapılıyor.</p>
+                        <select id="hw-q-shape-2" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-white">
+                            <option value="">Hangi Şekil Kullanılır?</option>
+                            <option value="oval">Oval (Elips)</option>
+                            <option value="parallelogram">Paralelkenar (Veri Girişi)</option>
+                            <option value="rectangle">Dikdörtgen (İşlem)</option>
+                            <option value="diamond">Eşkenar Dörtgen (Karar)</option>
+                        </select>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-2xl border-2 border-slate-200 space-y-3">
+                        <span class="text-xs font-bold text-slate-400">GÖREV C</span>
+                        <h5 class="font-bold text-sm text-slate-800">"Ortalama Notu Hesapla"</h5>
+                        <p class="text-xs text-slate-500">Matematiksel işlem yapılıyor.</p>
+                        <select id="hw-q-shape-3" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-white">
+                            <option value="">Hangi Şekil Kullanılır?</option>
+                            <option value="oval">Oval (Elips)</option>
+                            <option value="parallelogram">Paralelkenar (Veri Girişi)</option>
+                            <option value="rectangle">Dikdörtgen (İşlem)</option>
+                            <option value="diamond">Eşkenar Dörtgen (Karar)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="max-w-2xl mx-auto pt-2">
+                    <button onclick="checkHwShapes()" class="w-full bg-brand-blue text-white font-bold py-3.5 rounded-2xl hover:bg-blue-600 transition shadow-md flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check-double"></i> Ödev 2'yi Kontrol Et
+                    </button>
+                    <div id="hw-fb-2" class="hidden mt-3 p-4 rounded-2xl text-sm font-bold"></div>
+                </div>
+            </div>
+
+            <!-- ÖDEV 3: HATA AYIKLAMA ÖDEVİ -->
+            <div id="hw-content-3" class="hidden bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-base">Ödev 3: "Otomatik Süpürge Robotu" Hata Ayıklama</h4>
+                        <p class="text-xs text-slate-500">Aşağıdaki kod adımlarında robotun duvara çarpmasına neden olan mantık hatasını (Bug) bul!</p>
+                    </div>
+                    <span class="text-xs font-bold text-brand-pink bg-pink-100 px-3 py-1 rounded-full">+30 XP Ödüllü</span>
+                </div>
+
+                <div class="space-y-2 max-w-2xl mx-auto">
+                    <button onclick="checkHwBug(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">1</span>
+                        <span>BAŞLA (Odayı temizlemeye başla)</span>
+                    </button>
+                    <button onclick="checkHwBug(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">2</span>
+                        <span>Sensörle önündeki engeli tara.</span>
+                    </button>
+                    <button onclick="checkHwBug(true, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-rose-50 hover:border-rose-300 text-xs font-semibold flex items-center gap-3 group">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold group-hover:bg-rose-500 group-hover:text-white">3</span>
+                        <span>Önünde DUVAR VARSA hızını 2 katına çıkarıp düz ilerle! ❌ (Hatalı Adım!)</span>
+                    </button>
+                    <button onclick="checkHwBug(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">4</span>
+                        <span>Engel yoksa yeri süpürerek ilerle.</span>
+                    </button>
+                    <button onclick="checkHwBug(false, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold flex items-center gap-3">
+                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold">5</span>
+                        <span>Şarjı bitince şarj istasyonuna dön ve BİTİR.</span>
+                    </button>
+                </div>
+
+                <div class="max-w-2xl mx-auto">
+                    <div id="hw-fb-3" class="hidden p-4 rounded-2xl text-sm font-bold"></div>
+                </div>
+            </div>
+
+            <!-- ÖDEV 4: SENARYO & TRANSFER ÖDEVİ -->
+            <div id="hw-content-4" class="hidden bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-base">Ödev 4: Kendi Günlük Hayat Algoritmanı Yaz</h4>
+                        <p class="text-xs text-slate-500">Gagne 9. Etkinlik kapsamında öğrendiklerini gerçek hayata transfer et.</p>
+                    </div>
+                    <span class="text-xs font-bold text-brand-green bg-green-100 px-3 py-1 rounded-full">+40 XP Ödüllü</span>
+                </div>
+
+                <div class="max-w-2xl mx-auto space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Algoritma Başlığı (Örn: Yumurta Pişirme, Bisiklete Binme):</label>
+                        <input type="text" id="hw-algo-title" placeholder="Örn: Kütüphaneden Kitap Ödünç Alma Algoritması" class="w-full p-3 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:border-brand-purple">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Adım Adım Algoritma Metni (Her satıra 1 adım yaz):</label>
+                        <textarea id="hw-algo-body" rows="5" placeholder="1. BAŞLA&#10;2. Kütüphaneye git&#10;3. İlgili rafa bak ve kitabı seç&#10;4. Görevliye kartını göster&#10;5. BİTİR" class="w-full p-3 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:border-brand-purple"></textarea>
+                    </div>
+
+                    <button onclick="submitCustomAlgoHomework()" class="w-full bg-brand-green text-white font-bold py-3.5 rounded-2xl hover:bg-emerald-600 transition shadow-md flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Ödevi Öğretmene Gönder ve +40 XP Kazan
+                    </button>
+
+                    <div id="hw-fb-4" class="hidden p-4 rounded-2xl text-sm font-bold"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-between pt-4">
+                <button onclick="goToStep(7)" class="bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-bold hover:bg-slate-300 transition">Geri (Test Sekmesi)</button>
+                <button onclick="toggleAnalyticsModal()" class="bg-brand-purple text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition flex items-center gap-2">
+                    Analiz ve İlerleme Raporunu Gör <i class="fa-solid fa-chart-line"></i>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: TPAB / Öğrenme Analitiği & 80 Dk Ders Planı Detayı -->
+    <div id="analytics-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full p-6 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-graduation-cap text-2xl text-brand-purple"></i>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">80 Dakikalık BÖTE Ders Planı Matrisi</h3>
+                        <p class="text-xs text-slate-400">Gagne'nin 9 Etkinliği & TPAB Pedagogik Yapısı</p>
+                    </div>
+                </div>
+                <button onclick="toggleAnalyticsModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+
+            <!-- Stats Matrix -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="bg-purple-50 p-3.5 rounded-2xl text-center">
+                    <span class="text-xs text-slate-500 font-bold">Toplam Puan</span>
+                    <h4 id="modal-xp" class="text-xl font-bold text-brand-purple">0 XP</h4>
+                </div>
+                <div class="bg-blue-50 p-3.5 rounded-2xl text-center">
+                    <span class="text-xs text-slate-500 font-bold">Ders Aşama İlerlemesi</span>
+                    <h4 id="modal-completed" class="text-xl font-bold text-brand-blue">0 / 7</h4>
+                </div>
+                <div class="bg-pink-50 p-3.5 rounded-2xl text-center">
+                    <span class="text-xs text-slate-500 font-bold">Kazanılan Rozet</span>
+                    <h4 id="modal-badges" class="text-xl font-bold text-brand-pink">0</h4>
+                </div>
+                <div class="bg-green-50 p-3.5 rounded-2xl text-center">
+                    <span class="text-xs text-slate-500 font-bold">Test Doğruluğu</span>
+                    <h4 id="modal-accuracy" class="text-xl font-bold text-brand-green">%0</h4>
+                </div>
+            </div>
+
+            <!-- Detailed 80 min Breakdown -->
+            <div class="space-y-2 border-t pt-4">
+                <h4 class="font-bold text-xs text-slate-400 uppercase">80 Dakikalık Ders Süre Dağılımı</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                    <div class="p-2.5 bg-slate-50 rounded-xl border">
+                        <span class="font-bold text-brand-purple">1. DERS SAATİ (40 DK):</span>
+                        <ul class="list-disc list-inside mt-1 space-y-1 text-slate-600">
+                            <li>0-10 dk: Dikkat Çekme & Hikayeleştirme</li>
+                            <li>10-20 dk: Hedef Bildirimi & Ön Bilgiler</li>
+                            <li>20-35 dk: Etkileşimli İçerik & Simülatör</li>
+                            <li>35-40 dk: Ara Özet & Soru-Cevap</li>
+                        </ul>
+                    </div>
+                    <div class="p-2.5 bg-slate-50 rounded-xl border">
+                        <span class="font-bold text-brand-blue">2. DERS SAATİ (40 DK):</span>
+                        <ul class="list-disc list-inside mt-1 space-y-1 text-slate-600">
+                            <li>40-50 dk: Sürükle-Bırak Algoritma Sıralama</li>
+                            <li>50-60 dk: Akış Şeması Eşleştirme</li>
+                            <li>60-70 dk: Hata Ayıklama (Debug)</li>
+                            <li>70-80 dk: Dönütlü Test & Rozet Töreni</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gagne Events Checklist -->
+            <div class="space-y-2 border-t pt-4">
+                <h4 class="font-bold text-xs text-slate-400 uppercase">Gagne 9 Adım Tamamlama Durumu</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-semibold">
+                    <div id="g-check-1" class="flex items-center justify-between p-2 rounded-lg bg-slate-50 text-slate-500">
+                        <span>1. Dikkat Çekme</span>
+                        <i class="fa-solid fa-circle-notch animate-spin"></i>
+                    </div>
+                    <div id="g-check-2" class="flex items-center justify-between p-2 rounded-lg bg-slate-50 text-slate-500">
+                        <span>2 & 3. Hedef & Ön Öğrenme</span>
+                        <i class="fa-solid fa-circle-notch animate-spin"></i>
+                    </div>
+                    <div id="g-check-3" class="flex items-center justify-between p-2 rounded-lg bg-slate-50 text-slate-500">
+                        <span>4. Etkileşimli İçerik Sunumu</span>
+                        <i class="fa-solid fa-circle-notch animate-spin"></i>
+                    </div>
+                    <div id="g-check-4" class="flex items-center justify-between p-2 rounded-lg bg-slate-50 text-slate-500">
+                        <span>5 & 6. Rehberli Algoritma & Şema</span>
+                        <i class="fa-solid fa-circle-notch animate-spin"></i>
+                    </div>
+                    <div id="g-check-5" class="flex items-center justify-between p-2 rounded-lg bg-slate-50 text-slate-500">
+                        <span>7, 8 & 9. Dönüt & Değerlendirme</span>
+                        <i class="fa-solid fa-circle-notch animate-spin"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Earned Badge Showcase -->
+            <div class="border-t pt-4">
+                <h4 class="font-bold text-xs text-slate-400 uppercase mb-2">Rozet Vitrini</h4>
+                <div id="badge-showcase" class="flex gap-3">
+                    <div id="badge-u1" class="opacity-40 grayscale bg-slate-100 p-3 rounded-2xl text-center space-y-1 flex-1 border">
+                        <div class="text-3xl">🧩</div>
+                        <div class="font-bold text-xs">Algoritma Kaptanı (80 Dk)</div>
+                        <div class="text-[10px] text-slate-400">Ünite 1'i Başarıyla Bitir</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
+        <p>© 2026 Bilişim Teknolojileri Öğretimi • BÖTE TPAB & 80 Dakikalık Gagne Modeli Uygulaması</p>
+    </footer>
+
+    <!-- Web Audio API Synthesizer (Sound Effects) -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.15);
+                osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.35);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(250, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.25);
+            } else if (type === 'card') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            }
+        }
+    </script>
+
+    <!-- Main Logic Script -->
+    <script>
+        // State Management
+        let gameState = {
+            points: 0,
+            completedSteps: new Set([1]),
+            cardsFlipped: new Set(),
+            algoCompleted: false,
+            algo2Completed: false,
+            shapesMatched: 0,
+            quizCorrects: 0,
+            totalQuizAttempts: 0,
+            currentSimStep: 0,
+            currentStep: 1
+        };
+
+        // Gagne Navigation Logic
+        function goToStep(stepNumber) {
+            gameState.currentStep = stepNumber;
+            gameState.completedSteps.add(stepNumber);
+
+            // Hide all step sections
+            for (let i = 1; i <= 8; i++) {
+                const stepSec = document.getElementById(`gagne-step-${i}`);
+                if (stepSec) stepSec.classList.add('hidden');
+            }
+
+            // Show current step section
+            const targetSec = document.getElementById(`gagne-step-${stepNumber}`);
+            if (targetSec) targetSec.classList.remove('hidden');
+
+            // Update top step navbar styles
+            for (let i = 1; i <= 8; i++) {
+                const navBtn = document.getElementById(`nav-btn-${i}`);
+                if (navBtn) {
+                    if (i === stepNumber) {
+                        navBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-brand-purple text-white transition flex items-center gap-1 shadow-md";
+                    } else if (gameState.completedSteps.has(i)) {
+                        navBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-purple-100 text-brand-purple transition flex items-center gap-1";
+                    } else {
+                        navBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 transition flex items-center gap-1";
+                    }
+                }
+            }
+
+            // Update progress bar
+            updateProgress();
+            playSound('card');
+
+            // Scroll smoothly to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateProgress() {
+            const completedCount = gameState.completedSteps.size;
+            const percent = Math.round((completedCount / 8) * 100);
+            
+            const levelBar = document.getElementById('level-bar');
+            const levelPercent = document.getElementById('level-percent');
+            const modalCompleted = document.getElementById('modal-completed');
+
+            if (levelBar) levelBar.style.width = `${percent}%`;
+            if (levelPercent) levelPercent.innerText = `%${percent}`;
+            if (modalCompleted) modalCompleted.innerText = `${completedCount} / 8`;
+
+            // Update Gagne modal checklists
+            if (completedCount >= 1) updateChecklist('g-check-1');
+            if (completedCount >= 2) updateChecklist('g-check-2');
+            if (completedCount >= 3) updateChecklist('g-check-3');
+            if (completedCount >= 5) updateChecklist('g-check-4');
+            if (completedCount >= 7) updateChecklist('g-check-5');
+        }
+
+        function updateChecklist(elementId) {
+            const el = document.getElementById(elementId);
+            if (el && !el.classList.contains('bg-green-100')) {
+                el.className = "flex items-center justify-between p-2 rounded-lg bg-green-100 text-green-700 font-bold";
+                el.innerHTML = `${el.children[0].outerHTML} <i class="fa-solid fa-circle-check"></i>`;
+            }
+        }
+
+        function addPoints(amount) {
+            gameState.points += amount;
+            const pointsEl = document.getElementById('user-points');
+            const modalXp = document.getElementById('modal-xp');
+            if (pointsEl) pointsEl.innerText = gameState.points;
+            if (modalXp) modalXp.innerText = `${gameState.points} XP`;
+        }
+
+        function toggleAnalyticsModal() {
+            const modal = document.getElementById('analytics-modal');
+            if (modal) modal.classList.toggle('hidden');
+        }
+
+        function answerWarmup(isCorrect, btn) {
+            const fb = document.getElementById('warmup-feedback');
+            fb.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            if (isCorrect) {
+                fb.classList.add('bg-green-100', 'text-green-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-check"></i> Tebrikler! Günlük hayatta yaptığımız birçok işlem mantıklı bir sırayı takip eder. Algoritma da tam olarak budur! (+10 XP)';
+                playSound('success');
+                addPoints(10);
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Tekrar düşün! Okula gitmeden önce hazırlanıp evden çıkmamız gerekir, adımlar gelişigüzel olamaz.';
+                playSound('error');
+            }
+        }
+
+        // Initialize view & quiz on load
+        window.onload = function() {
+            goToStep(1);
+            loadQuiz();
+            initHwDrag1();
+            initAlgoDrag2();
+        };
+
+        // HOMEWORK SUB-TAB SWITCHING LOGIC
+        function switchHwTab(tabNum) {
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`hw-tab-btn-${i}`);
+                const content = document.getElementById(`hw-content-${i}`);
+                if (btn && content) {
+                    if (i === tabNum) {
+                        btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-brand-purple text-white transition flex items-center gap-1.5 shadow-sm";
+                        content.classList.remove('hidden');
+                    } else {
+                        btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition flex items-center gap-1.5";
+                        content.classList.add('hidden');
+                    }
+                }
+            }
+            playSound('card');
+        }
+
+        // HOMEWORK 1: DRAG AND DROP
+        let hwDragSrc1 = null;
+        function initHwDrag1() {
+            const hwList1 = document.getElementById('hw-drag-list-1');
+            if (!hwList1) return;
+
+            hwList1.querySelectorAll('.hw-drag-item-1').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    hwDragSrc1 = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                item.addEventListener('dragover', function(e) {
+                    if (e.preventDefault) e.preventDefault();
+                    return false;
+                });
+
+                item.addEventListener('drop', function(e) {
+                    if (e.stopPropagation) e.stopPropagation();
+                    if (hwDragSrc1 !== this) {
+                        const allItems = [...hwList1.querySelectorAll('.hw-drag-item-1')];
+                        const srcIndex = allItems.indexOf(hwDragSrc1);
+                        const targetIndex = allItems.indexOf(this);
+
+                        if (srcIndex < targetIndex) this.after(hwDragSrc1);
+                        else this.before(hwDragSrc1);
+                    }
+                    return false;
+                });
+
+                item.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+        }
+
+        function checkHwDrag1() {
+            const items = document.querySelectorAll('.hw-drag-item-1');
+            const currentOrder = Array.from(items).map(item => parseInt(item.getAttribute('data-id')));
+            const correctOrder = [1, 2, 3, 4, 5];
+
+            const fb = document.getElementById('hw-fb-1');
+            fb.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            const isCorrect = currentOrder.every((val, index) => val === correctOrder[index]);
+
+            if (isCorrect) {
+                fb.classList.add('bg-green-100', 'text-green-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-check text-xl"></i> MÜKEMMEL! ATM para çekme ödevini eksiksiz ve sırasıyla tamamladın! (+30 XP)';
+                playSound('success');
+                addPoints(30);
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-700');
+                fb.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Sıralamada hata var! Kartı takıp şifre girmeden çekilecek tutarı yazamazsın.';
+                playSound('error');
+            }
+        }
+
+        // HOMEWORK 2: SHAPE MATCHING
+        function checkHwShapes() {
+            const s1 = document.getElementById('hw-q-shape-1').value;
+            const s2 = document.getElementById('hw-q-shape-2').value;
+            const s3 = document.getElementById('hw-q-shape-3').value;
+
+            const fb = document.getElementById('hw-fb-2');
+            fb.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            if (s1 === 'parallelogram' && s2 === 'diamond' && s3 === 'rectangle') {
+                fb.classList.add('bg-green-100', 'text-green-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-check text-xl"></i> TEBRİKLER! Tüm geometrik sembolleri doğru tespit ettin! (+30 XP)';
+                playSound('success');
+                addPoints(30);
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-xmark text-xl"></i> Hatalı seçim var! Veri girişi: Paralelkenar, Karar: Eşkenar Dörtgen, İşlem: Dikdörtgen olmalıdır.';
+                playSound('error');
+            }
+        }
+
+        // HOMEWORK 3: DEBUGGING
+        function checkHwBug(isBug, btn) {
+            const fb = document.getElementById('hw-fb-3');
+            fb.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            if (isBug) {
+                btn.classList.add('bg-rose-500', 'text-white');
+                fb.classList.add('bg-green-100', 'text-green-700');
+                fb.innerHTML = '<i class="fa-solid fa-bug text-lg"></i> HARİKA! Duvar gördüğünde hızlanmak robotun kaza yapmasına neden olurdu! Hatayı buldun! (+30 XP)';
+                playSound('success');
+                addPoints(30);
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Bu kural robot için doğrudur. Duvar algılama adımına odaklan!';
+                playSound('error');
+            }
+        }
+
+        // HOMEWORK 4: CUSTOM ALGORITHM SUBMISSION
+        function submitCustomAlgoHomework() {
+            const title = document.getElementById('hw-algo-title').value.trim();
+            const body = document.getElementById('hw-algo-body').value.trim();
+
+            const fb = document.getElementById('hw-fb-4');
+            fb.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            if (title.length > 3 && body.length > 15) {
+                fb.classList.add('bg-green-100', 'text-green-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-check text-xl"></i> Ödevin başarıyla sisteme kaydedildi! Özgün algoritman için +40 XP kazandın!';
+                playSound('success');
+                addPoints(40);
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-700');
+                fb.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Lütfen ödev başlığını ve en az 3-4 adımlık algoritmanı detaylıca yaz.';
+                playSound('error');
+            }
+        }
+
+        // Drag & drop logic for Task 2 (Morning routine algorithm)
+        let dragSrcEl2 = null;
+        function initAlgoDrag2() {
+            const algoList2 = document.getElementById('algo-drag-list-2');
+            if (!algoList2) return;
+
+            algoList2.querySelectorAll('.drag-item-2').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    dragSrcEl2 = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                item.addEventListener('dragover', function(e) {
+                    if (e.preventDefault) e.preventDefault();
+                    return false;
+                });
+
+                item.addEventListener('drop', function(e) {
+                    if (e.stopPropagation) e.stopPropagation();
+                    if (dragSrcEl2 !== this) {
+                        const allItems = [...algoList2.querySelectorAll('.drag-item-2')];
+                        const srcIndex = allItems.indexOf(dragSrcEl2);
+                        const targetIndex = allItems.indexOf(this);
+
+                        if (srcIndex < targetIndex) this.after(dragSrcEl2);
+                        else this.before(dragSrcEl2);
+                    }
+                    return false;
+                });
+
+                item.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+        }
+
+        function checkAlgoDragOrder2() {
+            const algoList2 = document.getElementById('algo-drag-list-2');
+            if (!algoList2) return;
+            const items = algoList2.querySelectorAll('.drag-item-2');
+            const currentOrder = Array.from(items).map(item => parseInt(item.getAttribute('data-id')));
+            const correctOrder = [1, 2, 3, 4, 5];
+
+            const feedback = document.getElementById('algo-drag-feedback-2');
+            feedback.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            const isCorrect = currentOrder.every((val, index) => val === correctOrder[index]);
+
+            if (isCorrect) {
+                feedback.classList.add('bg-green-100', 'text-green-700');
+                feedback.innerHTML = '<i class="fa-solid fa-circle-check text-xl"></i> Süper! Sabah hazırlanma algoritmasını mükemmel sıraya koydun! (+25 XP)';
+                playSound('success');
+                if (!gameState.algo2Completed) {
+                    addPoints(25);
+                    gameState.algo2Completed = true;
+                }
+            } else {
+                feedback.classList.add('bg-red-100', 'text-red-700');
+                feedback.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Küçük bir mantık hatası var! Uyanmadan veya elini yıkamadan kahvaltıyı/çantayı hazırlayamazsın.';
+                playSound('error');
+            }
+        }
+
+        // Gagne 6 Task 2 Choice Check
+        function checkFlowChoice(step, val) {
+            const fb = document.getElementById(`flow-fb-${step}`);
+            if (val === 'correct') {
+                fb.className = "text-[10px] font-bold text-green-600 block";
+                fb.innerText = "✓ Doğru Eşleşme! (+10 XP)";
+                playSound('success');
+                addPoints(10);
+            } else if (val !== '') {
+                fb.className = "text-[10px] font-bold text-red-500 block";
+                fb.innerText = "✕ Tekrar Dene!";
+                playSound('error');
+            }
+        }
+
+        // Gagne 6 Scenario 2 Debug Choice Check
+        function checkBugChoice2(isBug, btn) {
+            const fb = document.getElementById('bug-feedback-2');
+            fb.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            if (isBug) {
+                btn.classList.add('bg-rose-500', 'text-white');
+                fb.classList.add('bg-green-100', 'text-green-700');
+                fb.innerHTML = '<i class="fa-solid fa-bug text-lg"></i> TEBRİKLER! Kırmızı ışıkta geçmek hayati bir mantık hatasıdır (Bug)! (+25 XP)';
+                playSound('success');
+                addPoints(25);
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Bu adım kurallara uygun. Kırmızı ışık adımına dikkat et!';
+                playSound('error');
+            }
+        }
+
+        function answerWarmupRobot(isCorrect, btn) {
+            const fb = document.getElementById('warmup-robot-feedback');
+            fb.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            if (isCorrect) {
+                fb.classList.add('bg-green-100', 'text-green-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-check"></i> Doğru! Bilgisayarlar ve robotlar sadece net ve tam adımları sırasıyla icra edebilirler. (+10 XP)';
+                playSound('success');
+                addPoints(10);
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Robotlar akıl yürütemez! Onlara her küçük adımı tek tek anlatmalıyız.';
+                playSound('error');
+            }
+        }
+
+        // Gagne 3: Prior Knowledge Check
+        function answerPrior(isCorrect, btn) {
+            const fb = document.getElementById('prior-feedback');
+            fb.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            if (isCorrect) {
+                fb.classList.add('bg-green-100', 'text-green-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-check"></i> Doğru! Bilişimde problem, çözülmesi gereken durumdur. Algoritma ise bu durumun adım adım çözüm yoludur.';
+                playSound('success');
+                addPoints(10);
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-700');
+                fb.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Problemler imkansız durumlar değildir! Çözüm üretebileceğimiz görevlerdir.';
+                playSound('error');
+            }
+        }
+
+        // Gagne 4: Interactive Flip Cards & Live Simulator
+        function flipCard(cardEl, cardId) {
+            const inner = cardEl.querySelector('.flip-card-inner');
+            inner.classList.toggle('rotate-y-180');
+            playSound('card');
+
+            if (!gameState.cardsFlipped.has(cardId)) {
+                gameState.cardsFlipped.add(cardId);
+                addPoints(10);
+            }
+        }
+
+        function runStepSimulation() {
+            gameState.currentSimStep++;
+            if (gameState.currentSimStep > 4) gameState.currentSimStep = 1;
+
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`sim-step-${i}`);
+                if (i === gameState.currentSimStep) {
+                    stepEl.classList.remove('border-slate-200');
+                    stepEl.classList.add('border-brand-purple', 'bg-purple-50', 'scale-105');
+                } else {
+                    stepEl.classList.remove('border-brand-purple', 'bg-purple-50', 'scale-105');
+                    stepEl.classList.add('border-slate-200');
+                }
+            }
+            playSound('card');
+        }
+
+        function resetStepSimulation() {
+            gameState.currentSimStep = 0;
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`sim-step-${i}`);
+                stepEl.classList.remove('border-brand-purple', 'bg-purple-50', 'scale-105');
+                stepEl.classList.add('border-slate-200');
+            }
+        }
+
+        // Gagne 5: Drag & Drop Algorithm Ordering
+        const algoList = document.getElementById('algo-drag-list');
+        let dragSrcEl = null;
+
+        if (algoList) {
+            algoList.querySelectorAll('.drag-item').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    dragSrcEl = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                item.addEventListener('dragover', function(e) {
+                    if (e.preventDefault) e.preventDefault();
+                    return false;
+                });
+
+                item.addEventListener('drop', function(e) {
+                    if (e.stopPropagation) e.stopPropagation();
+                    if (dragSrcEl !== this) {
+                        const allItems = [...algoList.querySelectorAll('.drag-item')];
+                        const srcIndex = allItems.indexOf(dragSrcEl);
+                        const targetIndex = allItems.indexOf(this);
+
+                        if (srcIndex < targetIndex) this.after(dragSrcEl);
+                        else this.before(dragSrcEl);
+                    }
+                    return false;
+                });
+
+                item.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+        }
+
+        function checkAlgoDragOrder() {
+            const items = algoList.querySelectorAll('.drag-item');
+            const currentOrder = Array.from(items).map(item => parseInt(item.getAttribute('data-id')));
+            const correctOrder = [1, 2, 3, 4, 5, 6];
+
+            const feedback = document.getElementById('algo-drag-feedback');
+            feedback.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            const isCorrect = currentOrder.every((val, index) => val === correctOrder[index]);
+
+            if (isCorrect) {
+                feedback.classList.add('bg-green-100', 'text-green-700');
+                feedback.innerHTML = '<i class="fa-solid fa-circle-check text-xl"></i> Harika! Çay demleme algoritmasını eksiksiz ve tam sırasında oluşturdun! (+30 XP)';
+                playSound('success');
+                if (!gameState.algoCompleted) {
+                    addPoints(30);
+                    gameState.algoCompleted = true;
+                }
+            } else {
+                feedback.classList.add('bg-red-100', 'text-red-700');
+                feedback.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Mantık hatası var! İpucu: Algoritma her zaman "BAŞLA" ile başlamalı ve su kaynamadan demliğe çay eklenmemelidir!';
+                playSound('error');
+            }
+        }
+
+        // Gagne 6: Shape Matching Drag & Drop
+        const shapeDrags = document.querySelectorAll('.shape-drag');
+        const dropZones = document.querySelectorAll('.drop-zone');
+
+        shapeDrags.forEach(drag => {
+            drag.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', drag.getAttribute('data-shape'));
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const draggedShape = e.dataTransfer.getData('text/plain');
+                const targetShape = zone.getAttribute('data-target');
+
+                if (draggedShape === targetShape) {
+                    const draggedNode = document.querySelector(`.shape-drag[data-shape="${draggedShape}"]`);
+                    zone.innerHTML = '';
+                    zone.appendChild(draggedNode);
+                    zone.classList.add('bg-green-50', 'border-green-400');
+                    playSound('success');
+                    gameState.shapesMatched++;
+                    addPoints(15);
+                } else {
+                    playSound('error');
+                }
+            });
+        });
+
+        // Gagne 6 (Advanced Debugging)
+        function checkBugChoice(isBug, btn) {
+            const fb = document.getElementById('bug-feedback');
+            fb.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            if (isBug) {
+                btn.classList.add('bg-rose-500', 'text-white');
+                fb.classList.add('bg-green-100', 'text-green-700');
+                fb.innerHTML = '<i class="fa-solid fa-bug text-lg"></i> TEBRİKLER DEDEKTİF! Mantık hatasını buldun! Yağmurlu günde güneş gözlüğü takmak hatalıdır! (+25 XP)';
+                playSound('success');
+                addPoints(25);
+            } else {
+                fb.classList.add('bg-red-100', 'text-red-700');
+                fb.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Bu adım gayet mantıklı! Başka bir adımı incele.';
+                playSound('error');
+            }
+        }
+
+        // Gagne 7 & 8: Genişletilmiş Quiz (5 Soru)
+        const quizData = [
+            {
+                q: "1. Akış şemalarında kullanıcıdan bir bilgi veya sayı girmesini isterken hangi geometrik şekil kullanılır?",
+                options: ["Dikdörtgen", "Oval", "Paralelkenar", "Eşkenar Dörtgen"],
+                correct: 2,
+                hint: "İpucu: Dışarıdan Veri/Bilgi Girişi için eğik çizgilere sahip Paralelkenar şekli kullanılır!"
+            },
+            {
+                q: "2. Bir akış şemasında 'Eğer Not >= 50 ise Geçti, Değilse Kaldı' gibi bir karar verme durumunda hangisini seçersin?",
+                options: ["Eşkenar Dörtgen (Baklava)", "Oval", "Dikdörtgen", "Daire"],
+                correct: 0,
+                hint: "İpucu: İki farklı seçeneğe (Evet/Hayır) ayrılan karar durumlarında Eşkenar Dörtgen kullanılır."
+            },
+            {
+                q: "3. Bir algoritmadaki adımların yerinin yanlış sıralanması sonucu oluşan hatalara ne ad verilir?",
+                options: ["Donanım", "Mantık Hatası (Bug)", "Virüs", "Yazılım"],
+                correct: 1,
+                hint: "İpucu: Robot Kaptan'ın adımları karıştırmasına neden olan duruma 'Bug' (Mantık Hatası) denir."
+            },
+            {
+                q: "4. Akış şemasını başlatmak ve bitirmek için hangi geometrik şekil kullanılır?",
+                options: ["Paralelkenar", "Eşkenar Dörtgen", "Oval (Elips)", "Dikdörtgen"],
+                correct: 2,
+                hint: "İpucu: 'BAŞLA' ve 'BİTİR' komutları Oval şeklinin içine yazılır."
+            },
+            {
+                q: "5. 'Sayı1 ile Sayı2'yi topla ve Sonuç değişkenine yaz' adımı akış şemasında hangi şekil içinde gösterilir?",
+                options: ["Dikdörtgen", "Oval", "Eşkenar Dörtgen", "Üçgen"],
+                correct: 0,
+                hint: "İpucu: Matematiksel hesaplama ve işlem adımları Dikdörtgen ile gösterilir."
+            }
+        ];
+
+        function loadQuiz() {
+            const container = document.getElementById('quiz-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            quizData.forEach((item, qIndex) => {
+                const qCard = document.createElement('div');
+                qCard.className = "bg-white p-6 rounded-3xl shadow-md border border-slate-200 space-y-4";
+                qCard.innerHTML = `
+                    <h4 class="font-bold text-slate-800 text-base">${item.q}</h4>
+                    <div class="space-y-2">
+                        ${item.options.map((opt, oIndex) => `
+                            <button onclick="checkQuizAnswer(${qIndex}, ${oIndex}, this)" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:bg-purple-50 font-semibold text-xs md:text-sm transition">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="quiz-hint-${qIndex}" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+                `;
+                container.appendChild(qCard);
+            });
+        }
+
+        function checkQuizAnswer(qIndex, selectedOpt, btnEl) {
+            const item = quizData[qIndex];
+            const hintBox = document.getElementById(`quiz-hint-${qIndex}`);
+            hintBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+            gameState.totalQuizAttempts++;
+
+            if (selectedOpt === item.correct) {
+                btnEl.classList.add('bg-green-500', 'text-white');
+                hintBox.classList.add('bg-green-100', 'text-green-700');
+                hintBox.innerHTML = '<i class="fa-solid fa-circle-check"></i> Harika! Doğru Cevap. (+20 XP)';
+                playSound('success');
+                gameState.quizCorrects++;
+                addPoints(20);
+
+                if (gameState.quizCorrects >= 3) {
+                    const finishBtn = document.getElementById('finish-unit-btn');
+                    if (finishBtn) finishBtn.classList.remove('hidden');
+                }
+            } else {
+                btnEl.classList.add('bg-red-500', 'text-white');
+                hintBox.classList.add('bg-red-100', 'text-red-700');
+                hintBox.innerHTML = `<i class="fa-solid fa-lightbulb"></i> Yanlış Cevap! ${item.hint}`;
+                playSound('error');
+            }
+
+            const accuracy = Math.round((gameState.quizCorrects / gameState.totalQuizAttempts) * 100);
+            const accuracyEl = document.getElementById('modal-accuracy');
+            if (accuracyEl) accuracyEl.innerText = `%${accuracy}`;
+        }
+
+        function finishUnit1() {
+            const badge = document.getElementById('badge-u1');
+            if (badge) {
+                badge.classList.remove('opacity-40', 'grayscale');
+                badge.classList.add('bg-amber-50', 'border-amber-300', 'shadow-md');
+            }
+            const bCount = document.getElementById('user-badges-count');
+            const mBadges = document.getElementById('modal-badges');
+            if (bCount) bCount.innerText = "1";
+            if (mBadges) mBadges.innerText = "1";
+            playSound('success');
+            toggleAnalyticsModal();
+        }
+    </script>
+</body>
+</html>
